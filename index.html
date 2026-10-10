@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff8f0">
+  <title>你是哪种恋爱动物？</title>
+  <style>
+    :root {
+      --ink: #342a38;
+      --muted: #766b7d;
+      --cream: #fff8f0;
+      --peach: #ffb38a;
+      --pink: #f77da8;
+      --lilac: #9e8df5;
+      --line: rgba(82, 57, 80, .12);
+      --shadow: 0 24px 70px rgba(106, 66, 83, .16);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: ui-rounded, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 14% 10%, rgba(255, 208, 167, .65), transparent 31%),
+        radial-gradient(circle at 88% 18%, rgba(202, 191, 255, .6), transparent 28%),
+        linear-gradient(145deg, #fff8f0 0%, #fff5fb 50%, #f8f5ff 100%);
+      overflow-x: hidden;
+    }
+
+    .blob { position: fixed; z-index: -1; border-radius: 999px; filter: blur(2px); opacity: .7; pointer-events: none; }
+    .blob.one { width: 180px; height: 180px; left: -75px; bottom: 12%; background: #ffd2bb; }
+    .blob.two { width: 230px; height: 230px; right: -95px; bottom: -60px; background: #d9d0ff; }
+
+    main { width: min(720px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 54px; }
+    .brand { text-align: center; margin-bottom: 18px; }
+    .brand .eyebrow { margin: 0 0 6px; color: #9b7b91; letter-spacing: .18em; font-size: .72rem; font-weight: 800; }
+    h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.15rem); letter-spacing: -.05em; line-height: 1.08; }
+    .subtitle { margin: 12px auto 0; max-width: 510px; color: var(--muted); line-height: 1.7; font-size: .98rem; }
+
+    .card { background: rgba(255,255,255,.78); border: 1px solid rgba(255,255,255,.92); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+    .quiz-card { padding: clamp(22px, 5vw, 42px); }
+    .topline { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: .86rem; font-weight: 700; }
+    .progress { height: 9px; margin: 13px 0 29px; overflow: hidden; border-radius: 99px; background: #f1e7e9; }
+    .progress > span { display: block; height: 100%; width: 12.5%; border-radius: inherit; background: linear-gradient(90deg, var(--peach), var(--pink), var(--lilac)); transition: width .45s ease; }
+    .question { margin: 0 0 21px; font-size: clamp(1.3rem, 4vw, 1.75rem); line-height: 1.45; letter-spacing: -.025em; }
+    .answers { display: grid; gap: 12px; }
+    .answer { width: 100%; display: flex; align-items: center; gap: 13px; padding: 15px 16px; text-align: left; color: var(--ink); background: rgba(255,255,255,.78); border: 1px solid var(--line); border-radius: 17px; font: inherit; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease; }
+    .answer:hover, .answer:focus-visible { border-color: rgba(247,125,168,.6); background: #fff; box-shadow: 0 10px 24px rgba(118, 82, 107, .1); transform: translateY(-2px); outline: none; }
+    .answer:active { transform: translateY(0); }
+    .answer .emoji { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 12px; background: #fff0e9; font-size: 1.24rem; }
+    .answer .copy { font-size: .98rem; line-height: 1.45; }
+    .answer .arrow { margin-left: auto; color: #b39cae; font-size: 1.2rem; }
+
+    .result { display: none; padding: clamp(24px, 5vw, 45px); text-align: center; }
+    .result.show { display: block; animation: rise .55s ease both; }
+    .result-badge { width: 112px; height: 112px; display: grid; place-items: center; margin: 4px auto 19px; border-radius: 38% 62% 52% 48% / 47% 42% 58% 53%; background: linear-gradient(145deg, #ffe4c9, #ffd4e4); box-shadow: 0 15px 35px rgba(191, 106, 128, .18); font-size: 4.25rem; animation: bob 3s ease-in-out infinite; }
+    .result-kicker { margin: 0 0 5px; color: #ae7598; font-size: .82rem; font-weight: 800; letter-spacing: .15em; }
+    .result h2 { margin: 0; font-size: clamp(1.8rem, 7vw, 2.65rem); letter-spacing: -.05em; }
+    .result .lead { max-width: 510px; margin: 15px auto 0; color: var(--muted); line-height: 1.75; }
+    .traits { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 22px 0 25px; }
+    .trait { padding: 8px 12px; border-radius: 999px; color: #754d6c; background: #fff0f4; font-size: .85rem; font-weight: 700; }
+    .tip { margin: 0 auto 27px; max-width: 550px; padding: 15px 18px; border-radius: 15px; color: #65566b; background: rgba(248, 242, 255, .9); font-size: .92rem; line-height: 1.65; }
+    .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    .button { border: 0; border-radius: 999px; padding: 13px 19px; font: inherit; font-weight: 800; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease; }
+    .button:hover, .button:focus-visible { transform: translateY(-2px); outline: none; }
+    .button.primary { color: #fff; background: linear-gradient(100deg, #f58aa9, #9f8af4); box-shadow: 0 10px 20px rgba(195, 112, 162, .25); }
+    .button.secondary { color: #755c72; background: #fff; border: 1px solid var(--line); }
+    .note { margin: 18px 0 0; text-align: center; color: #a293a2; font-size: .78rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @keyframes rise { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+    @media (max-width: 520px) { main { width: min(100% - 20px, 720px); padding-top: 23px; } .quiz-card { border-radius: 23px; } .question { font-size: 1.24rem; } .answer { padding: 13px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="blob one"></div><div class="blob two"></div>
+  <main>
+    <header class="brand">
+      <p class="eyebrow">LOVE ANIMAL PERSONALITY TEST</p>
+      <h1>你是哪种恋爱动物？</h1>
+      <p class="subtitle">凭第一直觉回答 8 道小问题，看看你在亲密关系里藏着哪一种可爱本能。</p>
+    </header>
+
+    <section class="card quiz-card" id="quiz" aria-live="polite">
+      <div class="topline"><span id="stepLabel">第 1 / 8 题</span><span id="percentLabel">12%</span></div>
+      <div class="progress" aria-label="答题进度"><span id="progressBar"></span></div>
+      <h2 class="question" id="question"></h2>
+      <div class="answers" id="answers"></div>
+      <p class="note">没有标准答案，选最像现在的你就好 ♡</p>
+    </section>
+
+    <section class="card result" id="result" aria-live="polite">
+      <div class="result-badge" id="resultEmoji" aria-hidden="true">🐶</div>
+      <p class="result-kicker">你的恋爱动物是</p>
+      <h2 id="resultTitle"></h2>
+      <p class="lead" id="resultLead"></p>
+      <div class="traits" id="traits"></div>
+      <p class="tip" id="resultTip"></p>
+      <div class="actions">
+        <button class="button primary" id="restart" type="button">再测一次</button>
+        <button class="button secondary" id="share" type="button">分享我的结果</button>
+      </div>
+      <p class="note" id="shareHint" role="status"></p>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      { text: '约会临时空出一小时，你会？', options: [
+        ['🗺️', '立刻规划一个小惊喜', 'retriever'], ['☕', '找个舒服的地方慢慢聊', 'cat'], ['🎢', '说走就走，去冒险！', 'fox'], ['🎧', '各自做喜欢的事也很甜', 'penguin']
+      ]},
+      { text: '对方心情不好时，你的第一反应是？', options: [
+        ['🫂', '先给一个大大的拥抱', 'retriever'], ['🍵', '安静陪着，准备热饮', 'cat'], ['💡', '想办法把 TA 逗笑', 'fox'], ['🧭', '问清楚需要陪伴还是空间', 'penguin']
+      ]},
+      { text: '你更期待收到哪一种礼物？', options: [
+        ['💌', '一封认真写下的信', 'retriever'], ['🕯️', '提升生活幸福感的小物', 'cat'], ['🎁', '完全猜不到的惊喜', 'fox'], ['📷', '一起经历的专属回忆', 'penguin']
+      ]},
+      { text: '发生小矛盾后，你通常会？', options: [
+        ['🌈', '主动和好，不想隔夜', 'retriever'], ['🪴', '先消化情绪，再温柔沟通', 'cat'], ['🧩', '用幽默化解尴尬', 'fox'], ['📝', '把问题说清楚，找一个共识', 'penguin']
+      ]},
+      { text: '在一段关系里，你最看重？', options: [
+        ['🤝', '坚定选择和公开偏爱', 'retriever'], ['🛋️', '舒服自在的相处感', 'cat'], ['✨', '心动和新鲜感', 'fox'], ['🌱', '彼此成长又互相尊重', 'penguin']
+      ]},
+      { text: '朋友会怎么形容你的魅力？', options: [
+        ['☀️', '热情又很会照顾人', 'retriever'], ['🌙', '有自己的节奏和氛围感', 'cat'], ['🦊', '聪明有趣，鬼点子很多', 'fox'], ['🪐', '靠谱冷静，越了解越迷人', 'penguin']
+      ]},
+      { text: '理想周末的关键词是？', options: [
+        ['🥐', '和喜欢的人吃遍小店', 'retriever'], ['📚', '宅家、阅读、晒太阳', 'cat'], ['🏕️', '临时出发去看风景', 'fox'], ['🎨', '一起做一件有成就感的事', 'penguin']
+      ]},
+      { text: '你希望对方记住你的哪一面？', options: [
+        ['💖', '永远真诚、永远有回应', 'retriever'], ['🌷', '温柔细腻，也懂得爱自己', 'cat'], ['🔥', '有趣勇敢，永远充满活力', 'fox'], ['🌌', '独立清醒，却愿意认真爱人', 'penguin']
+      ]}
+    ];
+
+    const results = {
+      retriever: { emoji: '🐶', title: '元气小金毛', lead: '你把爱表达得热烈又直接，是会把快乐带给身边人的那种恋人。对方和你在一起，很容易感受到被坚定选择。', traits: ['热情回应', '超强共情', '把爱说出来'], tip: '恋爱小提示：你的付出很珍贵，也记得把同样的耐心留一点给自己。' },
+      cat: { emoji: '🐱', title: '慵懒布偶猫', lead: '你细腻、慢热、有自己的小世界。真正靠近你的人，会发现你的温柔藏在每一个不动声色的细节里。', traits: ['细节控', '温柔慢热', '自带氛围感'], tip: '恋爱小提示：偶尔把“我在乎”说出来，别人会更容易接住你的心意。' },
+      fox: { emoji: '🦊', title: '心动小狐狸', lead: '你聪明有趣，擅长制造心动和惊喜。和你谈恋爱像一场轻盈的探险，总有新鲜的小故事发生。', traits: ['幽默感满分', '浪漫突袭', '勇敢心动'], tip: '恋爱小提示：新鲜感很迷人，稳定的回应也同样是长久关系的魔法。' },
+      penguin: { emoji: '🐧', title: '坚定小企鹅', lead: '你清醒、靠谱又有边界感。你不轻易开始，但一旦认定，就会用稳定而长情的方式认真走下去。', traits: ['安全感', '尊重边界', '长期主义'], tip: '恋爱小提示：别总是表现得无坚不摧，偶尔示弱也是一种亲密。' }
+    };
+
+    let current = 0;
+    let scores = { retriever: 0, cat: 0, fox: 0, penguin: 0 };
+    const $ = id => document.getElementById(id);
+
+    function renderQuestion() {
+      const question = questions[current];
+      const percent = Math.round(((current + 1) / questions.length) * 100);
+      $('stepLabel').textContent = `第 ${current + 1} / ${questions.length} 题`;
+      $('percentLabel').textContent = `${percent}%`;
+      $('progressBar').style.width = `${percent}%`;
+      $('question').textContent = question.text;
+      $('answers').innerHTML = question.options.map(([emoji, text, key]) => `
+        <button class="answer" type="button" data-key="${key}">
+          <span class="emoji" aria-hidden="true">${emoji}</span><span class="copy">${text}</span><span class="arrow" aria-hidden="true">›</span>
+        </button>`).join('');
+      document.querySelectorAll('.answer').forEach(button => button.addEventListener('click', () => choose(button.dataset.key)));
+    }
+
+    function choose(key) {
+      scores[key] += 1;
+      current += 1;
+      if (current < questions.length) renderQuestion();
+      else showResult();
+    }
+
+    function showResult() {
+      const winner = Object.keys(scores).reduce((best, key) => scores[key] > scores[best] ? key : best, 'retriever');
+      const data = results[winner];
+      $('quiz').style.display = 'none';
+      $('result').classList.add('show');
+      $('resultEmoji').textContent = data.emoji;
+      $('resultTitle').textContent = data.title;
+      $('resultLead').textContent = data.lead;
+      $('traits').innerHTML = data.traits.map(trait => `<span class="trait">${trait}</span>`).join('');
+      $('resultTip').textContent = data.tip;
+      $('shareHint').textContent = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    $('restart').addEventListener('click', () => {
+      current = 0;
+      scores = { retriever: 0, cat: 0, fox: 0, penguin: 0 };
+      $('result').classList.remove('show');
+      $('quiz').style.display = 'block';
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    $('share').addEventListener('click', async () => {
+      const text = `我测出了「${$('resultTitle').textContent}」！来测测你的恋爱动物：${location.href}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        $('shareHint').textContent = '结果文案已复制，发给朋友一起玩吧 ✨';
+      } catch (error) {
+        $('shareHint').textContent = '复制失败啦，可以直接分享当前页面给朋友～';
+      }
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
+
